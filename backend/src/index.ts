@@ -13,6 +13,11 @@ import analyticsRouter from './routes/analytics';
 const app = express();
 const httpServer = createServer(app);
 
+app.use((req, _res, next) => {
+  console.log(`[REQ] ${req.method} ${req.path}`);
+  next();
+});
+
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -32,11 +37,6 @@ app.use(cors({
 // Raw body required for Square webhook HMAC verification — must precede express.json()
 app.use('/api/webhooks', express.raw({ type: 'application/json' }));
 app.use(express.json());
-
-app.use((req, _res, next) => {
-  console.log(`[REQ] ${req.method} ${req.path}`);
-  next();
-});
 
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
